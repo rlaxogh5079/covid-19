@@ -46,9 +46,9 @@ class ClinicSpider(Spider):
             clinic_item["clinic_name"] = tr[idx].xpath(
                 "td[3]/strong/text()").get()
             clinic_item["clinic_sample"] = tr[idx].xpath(
-                "td[3]/strong/i[@class='ico_ntc']/text()").get()
+                "td[3]/strong/i[@class='ico_ntc']/span/text()").get()
             clinic_item["clinic_RAT"] = tr[idx].xpath(
-                "td[3]/strong/i[@class='ico_rat']/text()").get()
+                "td[3]/strong/i[@class='ico_rat']/span/text()").get()
             clinic_item["clinic_time"] = clinic_time
             clinic_item["clinic_call"] = tr[idx].xpath("td[4]/a/text()").get()
             clinic_item["competent_clinic"] = tr[idx].xpath(
