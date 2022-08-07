@@ -1,17 +1,19 @@
 from scrapy import Request
 from scrapy.spiders import Spider
 from ..items import ClinicItem
-import requests
-import json
+from selenium import webdriver, common
 import re
-
+import os
 
 class ClinicSpider(Spider):
     name = "clinic"
     clinic_url = "https://www.mohw.go.kr/react/ncov/selclinic04ls.jsp?page={}&SEARCHVALUE="
     start_url = clinic_url.format(1)
-
+    
     def start_requests(self):
+        options = webdriver.ChromeOptions()
+        options.add_argument("headless")
+        self.driver = webdriver.Chrome(executable_path = f"{os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__)))))}/chromedriver", options=options)
         yield Request(url=self.start_url, callback=self.load_pages)
 
     def load_pages(self, response):
@@ -40,7 +42,7 @@ class ClinicSpider(Spider):
             clinic_time["holiday"] = tr[idx].xpath(
                 "td[3]/p/span[4]/text()").get()
 
-            clinic_item["clinic_no"] = int(tr[idx].xpath("th/text()").get())
+            clinic_item["clinic_no"] = tr[idx].xpath("th/text()").get()
             clinic_item["clinic_trial"] = tr[idx].xpath("td[1]/text()").get()
             clinic_item["clinic_city"] = tr[idx].xpath("td[2]/text()").get()
             clinic_item["clinic_name"] = tr[idx].xpath(
@@ -58,14 +60,15 @@ class ClinicSpider(Spider):
             clinic_item["description"] = tr[idx].xpath("td[8]/text()").get()
             clinic_item["congestion"] = tr[idx].xpath("td[9]/text()").get()
 
-            request_query = f'{clinic_item["clinic_trial"]} {clinic_item["clinic_trial"]} 선별진료소 {clinic_item["clinic_name"]}'
-            request_url = "https://dapi.kakao.com/v2/local/search/keyword.json?query=" + request_query
-
-            clinic_item["clinic_location"] = json.loads(requests.get(request_url, headers={
-                "Origin": "https://www.mohw.go.kr",
-                "Referer": "https://www.mohw.go.kr/",
-                "Authorization": "KakaoAK 0a229229b783e6330fc2e6e9a459c730",
-                "KA": "sdk/4.4.6-fixed2 os/javascript lang/ko-KR device/Win32 origin/https%3A%2F%2Fwww.mohw.go.kr"
-            }).text)["documents"][0]["address_name"]
-
-            yield clinic_item
+            try:
+                request_url = "https://www.mohw.go.kr" + tr[idx].xpath("td[5]/a/@href").get()
+                self.driver.get(request_url)
+                self.driver.implicitly_wait(time_to_wait=5)
+                html = self.driver.find_element("xpath", "/html/body/div[1]/div/div[1]/div[1]/div/div[6]/div[2]/div/div[1]/span[1]").text
+                clinic_item["clinic_location"] = html
+                
+                yield clinic_item
+            except common.exceptions.NoSuchElementException:
+                clinic_item["clinic_location"] = "지도를 지원하지 않음"
+                yield clinic_item
+            
