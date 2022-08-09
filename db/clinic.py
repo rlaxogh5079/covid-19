@@ -54,7 +54,7 @@ def load_items_with_search(connection: pymysql.connections.Connection, search_va
     return clinic_models
 
 
-def insert_item(connection: pymysql.connections.Connection, clinic_item:ClinicModel) -> None:
+def insert_clinic_item(connection: pymysql.connections.Connection, clinic_item:ClinicModel) -> None:
     cursor = connection.cursor()
     try:
         cursor.execute(f"INSERT INTO clinic VALUES ('{clinic_item.clinic_no}', '{clinic_item.trial}', '{clinic_item.city}', '{clinic_item.name}', {clinic_item.ntc}, {clinic_item.rat}, '{clinic_item.working_weekday}', '{clinic_item.working_saturday}', '{clinic_item.working_sunday}', '{clinic_item.working_holiday}', '{clinic_item.call}', '{clinic_item.location}', '{clinic_item.competent_name}', '{clinic_item.competent_call}', '{clinic_item.description}', '{clinic_item.congestion}')")

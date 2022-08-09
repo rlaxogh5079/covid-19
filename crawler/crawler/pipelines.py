@@ -9,10 +9,10 @@ import sys
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 from db.connection import connect_db
 from db.models import ClinicModel
-from db.clinic import insert_item
+from db.clinic import insert_clinic_item
 
 
-class CrawlerPipeline(object):
+class ClinicPipeline(object):
     def process_item(self, item, spider):
         connection = connect_db()
         model = ClinicModel()
@@ -46,4 +46,4 @@ class CrawlerPipeline(object):
         model.competent_call = item["competent_clinic_call"]
         model.description = item["description"]
         model.congestion = item["congestion"]
-        insert_item(connection, model)
+        insert_clinic_item(connection, model)
