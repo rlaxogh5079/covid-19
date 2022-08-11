@@ -9,6 +9,9 @@ class CovidSpider(Spider):
     covid_url = "https://sgis.kostat.go.kr/ServiceAPI/thematicMap/GetThemaMapData.json?thema_map_data_id=covid19_status&area_type=auto&adm_cd=00&covid_year_val={}&covid_month_val={}&covid_day_val={}"
     start_date = datetime.datetime.strptime("2020-03-01", "%Y-%m-%d")
     custom_settings = {
+        'LOG_LEVEL': 'INFO',
+        "TELNETCONSOLE_PORT" : "None",
+        'LOG_FILE': 'crawler/spider.log',
         'ITEM_PIPELINES': {
             'crawler.pipelines.CovidPipeline': 100
         }

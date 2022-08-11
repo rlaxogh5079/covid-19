@@ -9,6 +9,14 @@ class ClinicSpider(Spider):
     name = "clinic"
     clinic_url = "https://www.mohw.go.kr/react/ncov/selclinic04ls.jsp?page={}&SEARCHVALUE="
     start_url = clinic_url.format(1)
+    custom_settings = {
+        'LOG_LEVEL': 'INFO',
+        "TELNETCONSOLE_PORT" : "None",
+        'LOG_FILE': 'crawler/spider.log',
+        'ITEM_PIPELINES': {
+            'crawler.pipelines.ClinicPipeline': 100
+        }
+    }
     
     def start_requests(self):
         options = webdriver.ChromeOptions()
