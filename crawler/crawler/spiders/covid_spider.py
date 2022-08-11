@@ -8,6 +8,11 @@ class CovidSpider(Spider):
     name = "covid"
     covid_url = "https://sgis.kostat.go.kr/ServiceAPI/thematicMap/GetThemaMapData.json?thema_map_data_id=covid19_status&area_type=auto&adm_cd=00&covid_year_val={}&covid_month_val={}&covid_day_val={}"
     start_date = datetime.datetime.strptime("2020-03-01", "%Y-%m-%d")
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            'crawler.pipelines.CovidPipeline': 100
+        }
+    }
     
     def start_requests(self):
         now = datetime.datetime.now()
@@ -15,11 +20,11 @@ class CovidSpider(Spider):
         while date < now:
             request_url = self.covid_url.format(date.year, str(date.month).rjust(2, "0"), str(date.day).rjust(2, "0"))
             date += datetime.timedelta(days=1)
-            yield Request(url = request_url, callback=self.test_fun, headers={
+            yield Request(url = request_url, callback=self.load_items, headers={
                 "datetime": date.strftime("%Y-%m-%d")
             })
 
-    def test_fun(self, response):
+    def load_items(self, response):
         
         detail_info = response.json()["result"]["detailInfo"]
 
@@ -30,4 +35,4 @@ class CovidSpider(Spider):
             covid_item[f"adm_cd_{adm_cd_list[index]}"] = detail_info[index]["left_data_val"]
             covid_item[f"adm_cd_{adm_cd_list[index]}_total"] = detail_info[index]["right_data_val"]
 
-        print(covid_item)
+        yield covid_item

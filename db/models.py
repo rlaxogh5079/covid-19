@@ -1,3 +1,5 @@
+from datetime import datetime
+
 class ClinicModel:
     clinic_no: str
     trial: str
@@ -15,3 +17,44 @@ class ClinicModel:
     competent_call: str
     description: str
     congestion: str
+
+class CovidModel:
+    date: datetime
+    adm_cd_00: str 
+    adm_cd_11: str 
+    adm_cd_21: str 
+    adm_cd_22: str
+    adm_cd_23: str 
+    adm_cd_24: str 
+    adm_cd_25: str 
+    adm_cd_26: str 
+    adm_cd_29: str 
+    adm_cd_31: str 
+    adm_cd_32: str 
+    adm_cd_33: str 
+    adm_cd_34: str 
+    adm_cd_35: str 
+    adm_cd_36: str 
+    adm_cd_37: str 
+    adm_cd_38: str 
+    adm_cd_39: str
+    adm_cd_99: str 
+    adm_cd_00_total: str 
+    adm_cd_11_total: str
+    adm_cd_21_total: str
+    adm_cd_22_total: str
+    adm_cd_23_total: str
+    adm_cd_24_total: str
+    adm_cd_25_total: str
+    adm_cd_26_total: str 
+    adm_cd_29_total: str
+    adm_cd_31_total: str
+    adm_cd_32_total: str
+    adm_cd_33_total: str
+    adm_cd_34_total: str 
+    adm_cd_35_total: str
+    adm_cd_36_total: str
+    adm_cd_37_total: str
+    adm_cd_38_total: str
+    adm_cd_39_total: str 
+    adm_cd_99_total: str 
