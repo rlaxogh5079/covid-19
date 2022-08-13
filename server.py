@@ -1,7 +1,14 @@
 from fastapi import FastAPI
-from db.clinic import load_all_items, load_items_with_search
+from fastapi_utils.tasks import repeat_every
+from db.clinic import load_all_items, load_items_with_search, drop_clinic_items
 from db.connection import connect_db
+from scrapy.crawler import CrawlerRunner
+from twisted.internet import reactor
+from crawler.crawler.spiders.clinic_spider import ClinicSpider
+from crawler.crawler.spiders.covid_spider import CovidSpider
+import os
 import uvicorn
+import datetime
 
 tags_metadata = [
     {
@@ -25,6 +32,23 @@ app = FastAPI(
 
 conn = connect_db()
 
+def crawler_run():
+    runner = CrawlerRunner()
+    runner.crawl(ClinicSpider)
+    runner.crawl(CovidSpider)
+    d = runner.join()
+    d.addBoth(lambda _ : reactor.stop())
+    reactor.run()
+
+@app.on_event('startup')
+@repeat_every(seconds=1)
+async def startup():
+    now = datetime.datetime.now()
+    if now.hour == 0 and now.minute == 0 and now.second == 0:
+        drop_clinic_items(conn)
+        crawler_run()
+        
+    
 @app.get("/clinics", tags=["clinic"])
 async def clinics(clinic_no: str = None, trial: str = None, city: str = None, name: str = None, rat: bool = None, working_weekday: bool = None, working_saturday: bool = None, working_sunday: bool = None, working_holiday: bool = None, competent_name: str = None):
     if clinic_no == trial == city == name == rat == working_weekday == working_saturday == working_sunday == working_holiday == competent_name == None:
@@ -55,4 +79,14 @@ async def clinics(clinic_no: str = None, trial: str = None, city: str = None, na
         return load_items_with_search(conn, search_values)
 
 if __name__ == "__main__":
+    file_path = os.path.abspath(os.path.dirname(__file__))
+    if not os.path.isfile(f"{file_path}/setting"):
+        print("setting server...")
+        crawler_run()
+        print("end setting")
+        f = open(f"{file_path}/setting", "w")
+        f.write("This file is for checking whether it is set or not")
+        f.close()
+    
     uvicorn.run(app="server:app", host="localhost", port=8000, reload=True)
+

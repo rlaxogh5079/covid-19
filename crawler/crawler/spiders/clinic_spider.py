@@ -11,10 +11,9 @@ class ClinicSpider(Spider):
     start_url = clinic_url.format(1)
     custom_settings = {
         'LOG_LEVEL': 'INFO',
-        "TELNETCONSOLE_PORT" : "None",
         'LOG_FILE': 'crawler/spider.log',
         'ITEM_PIPELINES': {
-            'crawler.pipelines.ClinicPipeline': 100
+            'crawler.crawler.pipelines.ClinicPipeline': 100
         }
     }
     

@@ -61,3 +61,11 @@ def insert_clinic_item(connection: pymysql.connections.Connection, clinic_item:C
         connection.commit()
     except pymysql.err.Error:
         raise pymysql.err.Error
+
+def drop_clinic_items(connection: pymysql.connections.Connection) -> None:
+    cursor = connection.cursor()
+    try:
+        cursor.execute("TRUNCATE TABLE clinic;")
+    except pymysql.err.Error:
+        raise pymysql.err.Error
+

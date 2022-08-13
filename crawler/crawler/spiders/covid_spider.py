@@ -1,33 +1,42 @@
 from scrapy import Request
 from scrapy.spiders import Spider
 import datetime
+import os
 
 from ..items import CovidItem
 
 class CovidSpider(Spider):
     name = "covid"
     covid_url = "https://sgis.kostat.go.kr/ServiceAPI/thematicMap/GetThemaMapData.json?thema_map_data_id=covid19_status&area_type=auto&adm_cd=00&covid_year_val={}&covid_month_val={}&covid_day_val={}"
+    file_path = os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))))
     start_date = datetime.datetime.strptime("2020-03-01", "%Y-%m-%d")
     custom_settings = {
         'LOG_LEVEL': 'INFO',
-        "TELNETCONSOLE_PORT" : "None",
         'LOG_FILE': 'crawler/spider.log',
         'ITEM_PIPELINES': {
-            'crawler.pipelines.CovidPipeline': 100
+            'crawler.crawler.pipelines.CovidPipeline': 100
         }
     }
     
     def start_requests(self):
         now = datetime.datetime.now()
-        date = self.start_date
-        while date < now:
+        if os.path.isfile(f"{self.file_path}/setting"):
+            date = (now - datetime.timedelta(days=1))
             request_url = self.covid_url.format(date.year, str(date.month).rjust(2, "0"), str(date.day).rjust(2, "0"))
-            date += datetime.timedelta(days=1)
             yield Request(url = request_url, callback=self.load_items, headers={
-                "datetime": date.strftime("%Y-%m-%d")
-            })
+                    "datetime": date.strftime("%Y-%m-%d")
+                })
+        else:
+            date = self.start_date
+            while date < now:
+                request_url = self.covid_url.format(date.year, str(date.month).rjust(2, "0"), str(date.day).rjust(2, "0"))
+                date += datetime.timedelta(days=1)
+                yield Request(url = request_url, callback=self.load_items, headers={
+                    "datetime": (date - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+                })
 
     def load_items(self, response):
+        print("detected")
         
         detail_info = response.json()["result"]["detailInfo"]
 
