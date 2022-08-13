@@ -8,9 +8,7 @@
 
 ```bash
 $ cd ~
-$ git clone https://github.com/rlaxogh5079/covid-19
-$ cd covid-19/crawler 
-$ scrapy crawl clinic 
+$ git clone https://github.com/rlaxogh5079/covid-19 
 $ cd covid-19
 $ python3 server.py
 ```
@@ -19,6 +17,10 @@ $ python3 server.py
 <hr />
 
 ### 선별진료소 확인
+
+```
+url : https://localhost:8000/clinics
+```
 
 <b>request</b>
 ```json
