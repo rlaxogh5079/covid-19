@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
-from db.clinic import load_all_items, load_items_with_search, drop_clinic_items
+from db.clinic import load_all_clinic_items, load_clinic_items_with_search, drop_clinic_items
 from db.connection import connect_db
 from scrapy.crawler import CrawlerRunner
 from twisted.internet import reactor
@@ -52,7 +52,7 @@ async def startup():
 @app.get("/clinics", tags=["clinic"])
 async def clinics(clinic_no: str = None, trial: str = None, city: str = None, name: str = None, rat: bool = None, working_weekday: bool = None, working_saturday: bool = None, working_sunday: bool = None, working_holiday: bool = None, competent_name: str = None):
     if clinic_no == trial == city == name == rat == working_weekday == working_saturday == working_sunday == working_holiday == competent_name == None:
-        return load_all_items(conn)
+        return load_all_clinic_items(conn)
 
     else:
         search_values = dict()
@@ -76,7 +76,7 @@ async def clinics(clinic_no: str = None, trial: str = None, city: str = None, na
             search_values["working_holiday"] = working_holiday
         if competent_name != None:
             search_values["competent_name"] = competent_name
-        return load_items_with_search(conn, search_values)
+        return load_clinic_items_with_search(conn, search_values)
 
 if __name__ == "__main__":
     file_path = os.path.abspath(os.path.dirname(__file__))

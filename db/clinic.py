@@ -26,13 +26,13 @@ def get_clinic_models(result: tuple) -> dict:
         clinic_models.append(clinic_model)
     return clinic_models
 
-def load_all_items(connection: pymysql.connections.Connection) -> dict:
+def load_all_clinic_items(connection: pymysql.connections.Connection) -> dict:
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM clinic;")
     clinic_models = get_clinic_models(cursor.fetchall())
     return clinic_models
 
-def load_items_with_search(connection: pymysql.connections.Connection, search_values: dict) -> dict:
+def load_clinic_items_with_search(connection: pymysql.connections.Connection, search_values: dict) -> dict:
     cursor = connection.cursor()
     sql = "SELECT * FROM clinic WHERE "
     for key in search_values.keys():
