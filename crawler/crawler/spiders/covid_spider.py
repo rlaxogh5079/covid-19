@@ -19,14 +19,21 @@ class CovidSpider(Spider):
     }
     
     def start_requests(self):
+        
         now = datetime.datetime.now()
         if os.path.isfile(f"{self.file_path}/setting"):
-            date = (now - datetime.timedelta(days=1))
-            request_url = self.covid_url.format(date.year, str(date.month).rjust(2, "0"), str(date.day).rjust(2, "0"))
-            yield Request(url = request_url, callback=self.load_items, headers={
-                    "datetime": date.strftime("%Y-%m-%d")
+            
+            f = open(f"{self.file_path}/last_date", 'r')
+            date = datetime.datetime.strptime(f.readline(), "%Y-%m-%d")
+            while date < now:
+                request_url = self.covid_url.format(date.year, str(date.month).rjust(2, "0"), str(date.day).rjust(2, "0"))
+                date += datetime.timedelta(days=1)
+                yield Request(url = request_url, callback=self.load_items, headers={
+                    "datetime": (date - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
                 })
+            
         else:
+            
             date = self.start_date
             while date < now:
                 request_url = self.covid_url.format(date.year, str(date.month).rjust(2, "0"), str(date.day).rjust(2, "0"))
@@ -36,7 +43,6 @@ class CovidSpider(Spider):
                 })
 
     def load_items(self, response):
-        print("detected")
         
         detail_info = response.json()["result"]["detailInfo"]
 
