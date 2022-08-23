@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from db.clinic import load_all_clinic_items, load_clinic_items_with_search, drop_clinic_items
+from db.covid import  load_all_covid_items,  load_covid_items_with_search, load_last_date, insert_last_date
 from db.connection import connect_db
 from scrapy.crawler import CrawlerRunner
 from twisted.internet import reactor
@@ -14,6 +15,10 @@ tags_metadata = [
     {
         "name": "clinic",
         "description": "코로나바이러스19의 선별진료소와 관련된 태그",
+    },
+    {
+        "name": "covid",
+        "description": "코로나바이러스19 확진자와 관련된 태그",
     },
 ]
 
@@ -47,6 +52,8 @@ async def startup():
     if now.hour == 0 and now.minute == 0 and now.second == 0:
         drop_clinic_items(conn)
         crawler_run()
+        load_last_date(conn)
+        insert_last_date(conn)
         
     
 @app.get("/clinics", tags=["clinic"])
@@ -77,6 +84,19 @@ async def clinics(clinic_no: str = None, trial: str = None, city: str = None, na
         if competent_name != None:
             search_values["competent_name"] = competent_name
         return load_clinic_items_with_search(conn, search_values)
+
+@app.get("/covids", tags=["covid"])
+async def covids(date: str = None, adm_cd_no:str = None):
+    if date == adm_cd_no == None:
+        return load_all_covid_items(conn)
+    search_values = dict()
+    if date != None:
+        search_values["date"] = date
+    if adm_cd_no != None:
+        search_values["adm_cd_no"] = adm_cd_no
+    
+    return load_covid_items_with_search(conn, search_values)
+
 
 if __name__ == "__main__":
     file_path = os.path.abspath(os.path.dirname(__file__))
