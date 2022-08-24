@@ -4,7 +4,7 @@
 
 <hr />
 
-### 사용법(WSL)
+### 사용법
 
 ```bash
 $ cd ~
@@ -41,24 +41,25 @@ rat, working_weekday, working_saturday, working_sunday, working_holiday는 boole
 0: 거짓, 1: 참
 
 <b>response</b>
+
 ```json
 [
     {
-        "clinic_no" : "선별진료소 고유 번호"
-        "trial": "대한민국 시도"
-        "city": "대한민국 시군구"
-        "name": "선별진료소 이름"
-        "ntc": "검체채취 가능 여부"
-        "rat": "신속항원검사 여부"
-        "working_weekday": "평일 운영 여부"
-        "working_saturday": "토요일 운영 여부"
-        "working_sunday": "일요일 운영 여부"
-        "working_holiday": "공휴일 운영 여부"
-        "call": "선별진료소 전화번호"
-        "location": "선별진료소 위치"
-        "competent_name": "관할보건소 이름"
-        "competent_call": "관할보건소 전화번호"
-        "description": "장애인편의사항"
+        "clinic_no" : "선별진료소 고유 번호",
+        "trial": "대한민국 시도",
+        "city": "대한민국 시군구",
+        "name": "선별진료소 이름",
+        "ntc": "검체채취 가능 여부",
+        "rat": "신속항원검사 여부",
+        "working_weekday": "평일 운영 여부",
+        "working_saturday": "토요일 운영 여부",
+        "working_sunday": "일요일 운영 여부",
+        "working_holiday": "공휴일 운영 여부",
+        "call": "선별진료소 전화번호",
+        "location": "선별진료소 위치",
+        "competent_name": "관할보건소 이름",
+        "competent_call": "관할보건소 전화번호",
+        "description": "장애인편의사항",
         "congestion": "혼잡도"
     }
 ]
@@ -123,4 +124,116 @@ response
     }
 ]
 ```
-(미완)
+
+### 코로나바이러스 확진자 확인
+
+```
+url : http://localhost:8000/covids
+```
+
+<b>request</b>
+
+```json
+    "date" : "날짜",
+    "adm_cd_no" : "지역 고유 번호"
+```
+
+<b>response</b>
+
+```json
+    "adm_cd_no" : "일일 확진자",
+    "adm_cd_no_total" : "누적 확진자"
+```
+
+```json
+    "adm_cd_00" : "전체 지역 확진자",
+    "adm_cd_11" : "서울 지역 확진자",
+    "adm_cd_21" : "부산광역시 지역 확진자",
+    "adm_cd_22" : "대구광역시 지역 확진자",
+    "adm_cd_23" : "인천 지역 확진자",
+    "adm_cd_24" : "광주광역시 지역 확진자",
+    "adm_cd_25" : "대전광역시 지역 확진자",
+    "adm_cd_26" : "울산광역시 지역 확진자",
+    "adm_cd_29" : "세종시 지역 확진자",
+    "adm_cd_31" : "경기도 지역 확진자",
+    "adm_cd_32" : "강원도 지역 확진자",
+    "adm_cd_33" : "충청북도 지역 확진자",
+    "adm_cd_34" : "충청남도 지역 확진자",
+    "adm_cd_35" : "전라북도 지역 확진자",
+    "adm_cd_36" : "전라남도 지역 확진자",
+    "adm_cd_37" : "경상북도 지역 확진자",
+    "adm_cd_38" : "경상남도 지역 확진자",
+    "adm_cd_39" : "제주도 지역 확진자",
+    "adm_cd_99" : "해외 유입 확진자",
+```
+
+
+예시)
+request
+```
+http://localhost:8000/covids?date=2022-02-02
+```
+
+response
+
+```json
+[
+    {
+        "date": "2022-02-02",
+        "adm_cd_00": "20270",
+        "adm_cd_11": "4209",
+        "adm_cd_21": "1267",
+        "adm_cd_22": "1147",
+        "adm_cd_23": "1400",
+        "adm_cd_24": "618",
+        "adm_cd_25": "481",
+        "adm_cd_26": "300",
+        "adm_cd_29": "140",
+        "adm_cd_31": "6050",
+        "adm_cd_32": "354",
+        "adm_cd_33": "459",
+        "adm_cd_34": "889",
+        "adm_cd_35": "656",
+        "adm_cd_36": "468",
+        "adm_cd_37": "777",
+        "adm_cd_38": "901",
+        "adm_cd_39": "122",
+        "adm_cd_99": "32",
+        "adm_cd_00_total": "884310",
+        "adm_cd_11_total": "285665",
+        "adm_cd_21_total": "36681",
+        "adm_cd_22_total": "35177",
+        "adm_cd_23_total": "54437",
+        "adm_cd_24_total": "16126",
+        "adm_cd_25_total": "17668",
+        "adm_cd_26_total": "9591",
+        "adm_cd_29_total": "3234",
+        "adm_cd_31_total": "270695",
+        "adm_cd_32_total": "16588",
+        "adm_cd_33_total": "16154",
+        "adm_cd_34_total": "26588",
+        "adm_cd_35_total": "16182",
+        "adm_cd_36_total": "11908",
+        "adm_cd_37_total": "23170",
+        "adm_cd_38_total": "30057",
+        "adm_cd_39_total": "5630",
+        "adm_cd_99_total": "8759"
+    }
+]
+```
+
+request
+```
+http://localhost:8000/covids?adm_cd_no=32&date=2022-08-21
+```
+
+response
+```json
+[
+    {
+        "date": "2022-08-21T00:00:00",
+        "adm_cd_32": "3030",
+        "adm_cd_32_total": "647421"
+    }
+]
+```
