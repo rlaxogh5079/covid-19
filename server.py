@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi_utils.tasks import repeat_every
 from db.clinic import load_all_clinic_items, load_clinic_items_with_search, drop_clinic_items
-from db.covid import  load_all_covid_items,  load_covid_items_with_search, load_last_date, insert_last_date
+from db.covid import  load_all_covid_items,  load_covid_items_with_search, insert_last_date
 from db.connection import connect_db
 from scrapy.crawler import CrawlerRunner
 from twisted.internet import reactor
@@ -37,13 +37,21 @@ app = FastAPI(
 
 conn = connect_db()
 
-def crawler_run():
+def crawler_run() -> None:
     runner = CrawlerRunner()
     runner.crawl(ClinicSpider)
     runner.crawl(CovidSpider)
     d = runner.join()
     d.addBoth(lambda _ : reactor.stop())
     reactor.run()
+
+def setting() -> None:
+    print("setting server...")
+    crawler_run()
+    print("end setting")
+    f = open(f"{file_path}/setting", "w")
+    f.write("This file is for checking whether it is set or not")
+    f.close()
 
 @app.on_event('startup')
 @repeat_every(seconds=1)
@@ -52,7 +60,6 @@ async def startup():
     if now.hour == 0 and now.minute == 0 and now.second == 0:
         drop_clinic_items(conn)
         crawler_run()
-        load_last_date(conn)
         insert_last_date(conn)
         
     
@@ -83,12 +90,14 @@ async def clinics(clinic_no: str = None, trial: str = None, city: str = None, na
             search_values["working_holiday"] = working_holiday
         if competent_name != None:
             search_values["competent_name"] = competent_name
+
         return load_clinic_items_with_search(conn, search_values)
 
 @app.get("/covids", tags=["covid"])
 async def covids(date: str = None, adm_cd_no:str = None):
     if date == adm_cd_no == None:
         return load_all_covid_items(conn)
+
     search_values = dict()
     if date != None:
         search_values["date"] = date
@@ -101,12 +110,7 @@ async def covids(date: str = None, adm_cd_no:str = None):
 if __name__ == "__main__":
     file_path = os.path.abspath(os.path.dirname(__file__))
     if not os.path.isfile(f"{file_path}/setting"):
-        print("setting server...")
-        crawler_run()
-        print("end setting")
-        f = open(f"{file_path}/setting", "w")
-        f.write("This file is for checking whether it is set or not")
-        f.close()
+        setting()
     
     uvicorn.run(app="server:app", host="localhost", port=8000, reload=True)
 
